@@ -11,3 +11,5 @@ One shows SQL code, the rest show R code
 I would like to thank my co-supervisors Dr Pramodh Vallabhaneni for helping me identify significant current health concerns in paediatric medicine and for his support and encouragement throughout the project and Dr Arron Lacey for his for his encouragement and support in using SAIL, as well as submitting the SAIL application. I would also like to thank Hamed Ghanbarialadolat, Ian Farr and Kevin Williams, among the rest of the staff at SAIL for their patience and support as I learned to use the database.
 
 This study makes use of anonymised data held in the Secure Anonymised Information Linkage (SAIL) Databank. I would like to acknowledge all the data providers who make anonymised data available for research.
+
+For full text please email me at whmidgley0@gmail.com
