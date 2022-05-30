@@ -1,0 +1,409 @@
+Where I have written ***, this means I have removed text for security sake
+
+
+source("P:/***/workspace/1415/Scripts/R Scripts/Setup for export.R")
+plot15 <- paste0("SELECT * FROM ", p15) %>% SAILDBUtils::runSQL(a, .)
+plot15 <- filter(plot15, COMORBIDITY == "Constipation" | COMORBIDITY == "BMI" | COMORBIDITY == "Depression" | COMORBIDITY == "Fatty Liver" | COMORBIDITY == "Type 2 Diabetes") 
+plot15$COMORBIDITY <- droplevels(plot15$COMORBIDITY)
+levels(plot15$COMORBIDITY) <- c("Overall", "Constipation", "Depression", "MAFLD", "T2DM")
+plot15$COMORBIDITY <- factor(plot15$COMORBIDITY, levels = c("Overall" ,"T2DM", "MAFLD", "Constipation", "Depression"))
+plot15 <- filter(plot15, BMI < 50) # using a cutoff of 50 for the graphs to make the graphs easier to read. This only 
+# cuts off a small number of extreme values
+
+plot5 <- paste0("SELECT * FROM ", p5) %>% SAILDBUtils::runSQL(a, .)
+plot5 <- filter(plot5, COMORBIDITY == "Constipation" | COMORBIDITY == "BMI") 
+plot5$COMORBIDITY <- droplevels(plot5$COMORBIDITY)
+levels(plot5$COMORBIDITY) <- c("Overall", "Constipation")
+plot5$COMORBIDITY <- factor(plot5$COMORBIDITY, levels = c("Overall", "Constipation"))
+plot5 <- filter(plot5, BMI < 50) 
+
+
+plot10 <- paste0("SELECT * FROM ", p10) %>% SAILDBUtils::runSQL(a, .)
+plot10 <- plot10 %>% filter(COMORBIDITY == "Constipation" | COMORBIDITY == "BMI" | COMORBIDITY == "Depression" | COMORBIDITY == "Fatty Liver" | COMORBIDITY == "Type 2 Diabetes") 
+plot10$COMORBIDITY <- droplevels(plot10$COMORBIDITY)
+levels(plot10$COMORBIDITY) <- c("Overall", "Constipation", "Depression", "MAFLD", "T2DM")
+plot10$COMORBIDITY <- factor(plot10$COMORBIDITY, levels = c("Overall" ,"T2DM", "MAFLD", "Constipation", "Depression"))
+plot10 <- filter(plot10, BMI < 50) 
+
+#Crosstabs
+comorbid.xtabFt <- xtabs(~ DIAB_YN + CONST_YN + FL_YN + DEP_YN, FtYOs)
+summary(comorbid.xtab)
+
+#significant (I went through all combinations of 2 conditions to find the signifiacnce of all)
+xtabs(~ DEP_YN + CONST_YN, TYOs) %>% summary()
+xtabs(~ CONST_YN + FL_YN, TYOs) %>% summary()
+xtabs(~ DIAB_YN + DEP_YN, FtYOs) %>% summary()
+
+
+
+
+# % with a comorbidity
+(((filter(FYOs, ADVERSE_OUTCOME ==1) %>% nrow()) + (filter(TYOs, ADVERSE_OUTCOME ==1) %>% nrow()) + (filter(FtYOs, ADVERSE_OUTCOME ==1) %>% nrow()))
+  /(nrow(FYOs)+nrow(TYOs)+nrow(FtYOs)))*100
+# # with a comorbidity
+(filter(FYOs, ADVERSE_OUTCOME ==1) %>% nrow()) + (filter(TYOs, ADVERSE_OUTCOME ==1) %>% nrow()) + (filter(FtYOs, ADVERSE_OUTCOME ==1) %>% nrow())
+
+
+
+colnames(WIMDmeanTab) <- c("2-6yrs", "7-11yrs", "12-16yrs")
+rownames(WIMDmeanTab) <- c("Overall", "T2DM", "MAFLD", "Constipation", "Depression")
+
+WIMDmeanTab<- as.table(WIMDmeanTab)
+
+numMat<- matrix(c(nrow(filter(plot5, COMORBIDITY == "Overall")), nrow(filter(plot10, COMORBIDITY == "Overall")), nrow(filter(plot15, COMORBIDITY == "Overall")),
+                  nrow(filter(plot5, COMORBIDITY == "T2DM")), nrow(filter(plot10, COMORBIDITY == "T2DM")), nrow(filter(plot15, COMORBIDITY == "T2DM")),
+                  nrow(filter(plot5, COMORBIDITY == "MAFLD")), nrow(filter(plot10, COMORBIDITY == "MAFLD")), nrow(filter(plot15, COMORBIDITY == "MAFLD")),
+                  nrow(filter(plot5, COMORBIDITY == "Constipation") ), nrow(filter(plot10, COMORBIDITY == "Constipation") ), nrow(filter(plot15, COMORBIDITY == "Constipation") ),
+                  nrow(filter(plot5, COMORBIDITY == "Depression") ), nrow(filter(plot10, COMORBIDITY == "Depression") ), nrow(filter(plot15, COMORBIDITY == "Depression"))), ncol=3, byrow=TRUE)
+
+colnames(numMat) <- c("2-6yrs", "7-11yrs", "12-16yrs")
+rownames(numMat) <- c("Overall", "T2DM", "MAFLD", "Constipation", "Depression")
+
+numTab <- as.table(numMat)
+
+numMatdist <- matrix(c(nrow(FYOs), nrow(TYOs), nrow(FtYOs), nrow(FtT), nrow(FtFt), nrow(TtFt), 
+                       nrow(filter(FYOs, DIAB_YN == 0 & FL_YN == 0 & CONST_YN == 0 & DEP_YN == 0)), nrow(filter(TYOs, DIAB_YN == 0 & FL_YN == 0 & CONST_YN == 0 & DEP_YN == 0)), nrow(filter(FtYOs, DIAB_YN == 0 & FL_YN == 0 & CONST_YN == 0 & DEP_YN == 0)), nrow(filter(FtT, DIAB_YN == 0 & FL_YN == 0 & CONST_YN == 0 & DEP_YN == 0)), nrow(filter(FtFt, DIAB_YN == 0 & FL_YN == 0 & CONST_YN == 0 & DEP_YN == 0)), nrow(filter(TtFt, DIAB_YN == 0 & FL_YN == 0 & CONST_YN == 0 & DEP_YN == 0)),
+                       nrow(filter(FYOs, DIAB_YN == 1)), nrow(filter(TYOs, DIAB_YN == 1)), nrow(filter(FtYOs, DIAB_YN == 1)), nrow(filter(FtT, DIAB_YN == 1)), nrow(filter(FtFt, DIAB_YN == 1)), nrow(filter(TtFt, DIAB_YN == 1)),
+                       nrow(filter(FYOs, FL_YN == 1)), nrow(filter(TYOs, FL_YN == 1)), nrow(filter(FtYOs, FL_YN == 1)), nrow(filter(FtT, FL_YN == 1)), nrow(filter(FtFt, FL_YN == 1)), nrow(filter(TtFt, FL_YN == 1)),
+                       nrow(filter(FYOs, CONST_YN == 1)), nrow(filter(TYOs, CONST_YN == 1)), nrow(filter(FtYOs, CONST_YN == 1)), nrow(filter(FtT, CONST_YN == 1)), nrow(filter(FtFt, CONST_YN == 1)), nrow(filter(TtFt, CONST_YN == 1)), 
+                       nrow(filter(FYOs, DEP_YN == 1)), nrow(filter(TYOs, DEP_YN == 1)), nrow(filter(FtYOs, DEP_YN == 1)), nrow(filter(FtT, DEP_YN == 1)), nrow(filter(FtFt, DEP_YN == 1)), nrow(filter(TtFt, DEP_YN == 1))),
+                     ncol=6, byrow=TRUE)
+
+colnames(numMatdist) <- c("2-6yrs", "7-11yrs", "12-16yrs", "BMI:2-6yrs Comorbidity:7-11yrs", "BMI:2-6yrs Comorbidity:12-16yrs", "BMI:7-11yrs Comorbidity:12-16yrs")
+rownames(numMatdist) <- c("Overall", "None", "T2DM", "MAFLD", "Constipation", "Depression")
+
+numTabdist <- as.table(numMatdist)
+
+
+# significance of BMI difference between comorbidities
+
+p15com <- plot15 %>%
+  rstatix::wilcox_test(BMI ~ COMORBIDITY) %>%
+  filter(p.adj<0.05) %>%
+  rstatix::add_significance("p.adj") %>%
+  rstatix::add_y_position() %>%
+  mutate(y.position = c(49,53,57,61,49,65,69,45,49,41))
+
+p10com <- plot10 %>%
+  rstatix::wilcox_test(BMI ~ COMORBIDITY) %>%
+  filter(p.adj<0.05) %>%
+  rstatix::add_significance("p.adj") %>%
+  rstatix::add_y_position() %>%
+  mutate(y.position = c(34,38, 42, 46))
+
+p5com <- plot5 %>%
+  rstatix::wilcox_test(BMI ~ COMORBIDITY) %>%
+  filter(p.adj<0.05) %>%
+  rstatix::add_significance("p.adj") %>%
+  rstatix::add_y_position() %>%
+  mutate(y.position = c(0))
+
+#plotting boxplots with significance n.b. boxplots plot median whereas p values show difference in mean
+#therefore boxplots that look the same may be significantly different because the median is not always the same as the mean
+ggplot(plot15) + 
+  aes(x=COMORBIDITY) +
+  aes(y=BMI) + 
+  geom_boxplot(outlier.shape = NA) +
+  ggtitle("Boxplot of BMI stratified by comorbidity in 11-16 yr olds") +
+  ggpubr::stat_pvalue_manual(p15com, label = "p.adj.signif") +
+  xlab("Comorbidity") +
+  ylab("BMI") +
+  ylim(10,70)
+
+ggplot(plot10) + 
+  aes(x=COMORBIDITY) +
+  aes(y=BMI) + 
+  geom_boxplot(outlier.shape = NA) +
+  ggtitle("Boxplot of BMI stratified by comorbidity in 6-11 yr olds") +
+  ggpubr::stat_pvalue_manual(p10com, label = "p.adj.signif") +
+  xlab("Comorbidity") +
+  ylab("BMI") +
+  ylim(10,47)
+
+ggplot(plot5) + 
+  aes(x=COMORBIDITY) +
+  aes(y=BMI) + 
+  geom_boxplot(outlier.shape = NA) +
+  ggtitle("Boxplot of BMI stratified by comorbidity in 2-6 yr olds") +
+  #  ggpubr::stat_pvalue_manual(p5com, label = "p.adj") +
+  xlab("Comorbidity") +
+  ylab("BMI") +
+  ylim(10,23)
+
+#WIMD
+
+p15comWIMD <- plot15 %>%
+  rstatix::wilcox_test(WIMD_2014_DECILE ~ COMORBIDITY) %>%
+  filter(p.adj<0.05) %>%
+  rstatix::add_significance("p.adj") %>%
+  rstatix::add_y_position() %>%
+  mutate(y.position = c(12,14,16,12,18,20,12))
+
+p10comWIMD <- plot10 %>%
+  rstatix::wilcox_test(WIMD_2014_DECILE ~ COMORBIDITY) %>%
+  filter(p.adj<0.05) %>%
+  rstatix::add_significance("p.adj") %>%
+  rstatix::add_y_position() %>%
+  mutate(y.position = c(11))
+
+p5comWIMD <- plot5 %>%
+  rstatix::wilcox_test(WIMD_2014_DECILE ~ COMORBIDITY) %>%
+  filter(p<0.05) %>%
+  rstatix::add_significance("p") %>%
+  rstatix::add_y_position() %>%
+  mutate(y.position = c(11))
+
+ggplot(plot15) + 
+  aes(x=COMORBIDITY) +
+  aes(y=WIMD_2014_DECILE) + 
+  geom_boxplot(outlier.shape = NA) +
+  ggtitle("Boxplot of deprivation\nstratified by comorbidity in 11-16 yr olds") +
+  ggpubr::stat_pvalue_manual(p15comWIMD, label = "p.adj.signif") +
+  xlab("Comorbidity") +
+  ylab("Deprivation (1-10, 1 = most deprived)") +
+  ylim(0,21)
+
+ggplot(plot10) + 
+  aes(x=COMORBIDITY) +
+  aes(y=WIMD_2014_DECILE) + 
+  geom_boxplot(outlier.shape = NA) +
+  ggtitle("Boxplot of deprivation\nstratified by comorbidity in 6-11 yr olds") +
+  ggpubr::stat_pvalue_manual(p10comWIMD, label = "p.adj.signif") +
+  xlab("Comorbidity") +
+  ylab("Deprivation (1-10, 1 = most deprived)") +
+  ylim(0,12)
+mean(filter(plot10, COMORBIDITY == "Overall")$WIMD_2014_DECILE)
+mean(filter(plot10, COMORBIDITY == "Constipation")$WIMD_2014_DECILE)
+
+
+ggplot(plot5) + 
+  aes(x=COMORBIDITY) +
+  aes(y=WIMD_2014_DECILE) + 
+  geom_boxplot(outlier.shape = NA) +
+  ggtitle("Boxplot of deprivation\nstratified by comorbidity in 2-6 yr olds") +
+  ggpubr::stat_pvalue_manual(p5comWIMD, label = "p.signif") +
+  xlab("Comorbidity") +
+  ylab("Deprivation (1-10, 1 = most deprived)") +
+  ylim(0,12)
+
+ggplot(plot15) + 
+  aes(x=WIMD_2014_DECILE) +
+  aes(y=BMI) + 
+  geom_point(outlier.shape = NA) +
+  ggtitle("Distribution of deprivation stratified by comorbidity in 12-16 yr olds") +
+  #ggpubr::stat_pvalue_manual(p15comWIMD, label = "p.adj") +
+  geom_smooth(method = "lm")
+xlab("Comorbidity") +
+  ylab("Deprivation (1-10, 1 = most deprived)") #+
+#ylim(0,21)
+
+#BMI histograms 
+
+hist(plot15$BMI, main = "Histogram showing BMI of 11-16yr olds' events", xlab = "BMI", ylab = "No. events")
+legend(x = "topright",
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2) 
+mp15 <- mean(plot15$BMI)
+mdp15 <- median(plot15$BMI)
+abline(v = mp15, col = "blue", lwd = 2, lty = 2)
+abline(v = mdp15, col = "red", lwd = 2, lty = 1)
+
+hist(plot10$BMI, main = "Histogram showing BMI of 6-11yr olds' events", xlab = "BMI", ylab = "No. events")
+legend(x = "topright",
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2) 
+mp10 <- mean(plot10$BMI)
+mdp10 <- median(plot10$BMI)
+abline(v = mp10, col = "blue", lwd = 2, lty = 2)
+abline(v = mdp10, col = "red", lwd = 2, lty = 1)
+
+hist(plot5$BMI, main = "Histogram showing BMI of 2-6yr olds' events", xlab = "BMI", ylab = "No. events")
+legend(x = "topright",
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2) 
+mp5 <- mean(plot5$BMI)
+mdp5 <- median(plot5$BMI)
+abline(v = mp5, col = "blue", lwd = 2, lty = 2)
+abline(v = mdp5, col = "red", lwd = 2, lty = 1)
+
+hist(FtYOs$AVG_BMI_RAW, main = "Histogram showing BMI of 11-16yr olds", xlab = "BMI", xlim = c(0,50))
+legend(x = "topright",
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2) 
+mFtYOs <- mean(FtYOs$AVG_BMI_RAW)
+mdFtYOs <- median(FtYOs$AVG_BMI_RAW)
+abline(v = mFtYOs, col = "blue", lwd = 2, lty = 2)
+abline(v = mdFtYOs, col = "red", lwd = 2, lty = 1)
+
+hist(TYOs$AVG_BMI_RAW, main = "Histogram showing BMI of 6-11yr olds", xlab = "BMI", xlim = c(0,50))
+legend(x = "topright",
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2) 
+mTYOs <- mean(TYOs$AVG_BMI_RAW)
+mdTYOs <- median(TYOs$AVG_BMI_RAW)
+abline(v = mTYOs, col = "blue", lwd = 2, lty = 2)
+abline(v = mdTYOs, col = "red", lwd = 2, lty = 1)
+
+hist(FYOs$AVG_BMI_RAW,
+     main = "Histogram showing BMI of 2-6yr olds",
+     xlab = "BMI",
+     xlim = c(0,50))
+legend(x = "topright",
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2) 
+mFYOs <- mean(FYOs$AVG_BMI_RAW)
+mdFYOs <- median(FYOs$AVG_BMI_RAW)
+abline(v = mFYOs, col = "blue", lwd = 2, lty = 2)
+abline(v = mdFYOs, col = "red", lwd = 2, lty = 1)
+
+
+#WIMD
+
+hist(plot15$WIMD_2014_DECILE,
+     main = "Histogram showing WIMD of 11-16yr olds' events",
+     xlab = "WIMD",
+     ylab = "No. events", ylim = c(0,40000))
+legend(x = "topright",  inset = c(0,-0.11),
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2,
+       bty = "n") 
+wmp15 <- mean(plot15$WIMD_2014_DECILE)
+wmdp15 <- median(plot15$WIMD_2014_DECILE)
+abline(v = wmp15, col = "blue", lwd = 2, lty = 2)
+abline(v = wmdp15, col = "red", lwd = 2, lty = 1)
+
+hist(plot10$WIMD_2014_DECILE,
+     main = "Histogram showing WIMD of 6-11yr olds' events",
+     xlab = "WIMD",
+     ylab = "No. events", ylim = c(0,35000))
+legend(x = "topright",  inset = c(0,-0.11),
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2,
+       bty = "n") 
+wmp10 <- mean(plot10$WIMD_2014_DECILE)
+wmdp10 <- median(plot10$WIMD_2014_DECILE)
+abline(v = wmp10, col = "blue", lwd = 2, lty = 2)
+abline(v = wmdp10, col = "red", lwd = 2, lty = 1)
+
+hist(plot5$WIMD_2014_DECILE,
+     main = "Histogram showing WIMD of 2-6yr olds' events",
+     xlab = "WIMD",
+     ylab = "No. events", ylim = c(0,25000))
+legend(x = "topright",  inset = c(0,-0.11),
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2,
+       bty = "n") 
+wmp5 <- mean(plot5$WIMD_2014_DECILE)
+wmdp5 <- median(plot5$WIMD_2014_DECILE)
+abline(v = wmp5, col = "blue", lwd = 2, lty = 2)
+abline(v = wmdp5, col = "red", lwd = 2, lty = 1)
+
+
+
+hist(FtYOs$WIMD_2014_DECILE,
+     main = "Histogram showing WIMD of 11-16yr olds",
+     xlab = "WIMD",
+     ylab = "No. children",
+     ylim = c(0, 9000))
+legend(x = "topright",  inset = c(0,-0.11),
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2,
+       bty = "n") 
+wmFtYOs <- mean(FtYOs$WIMD_2014_DECILE)
+wmdFtYOs <- median(FtYOs$WIMD_2014_DECILE)
+abline(v = wmFtYOs, col = "blue", lwd = 2, lty = 2)
+abline(v = wmdFtYOs, col = "red", lwd = 2, lty = 1)
+
+hist(TYOs$WIMD_2014_DECILE,
+     main = "Histogram showing WIMD of 6-11yr olds",
+     xlab = "WIMD", 
+     ylab = "No. children", ylim = c(0,6000))
+legend(x = "topright", inset = c(0,-0.11),
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2,
+       bty = "n") 
+wmTYOs <- mean(TYOs$WIMD_2014_DECILE)
+wmdTYOs <- median(TYOs$WIMD_2014_DECILE)
+abline(v = wmTYOs, col = "blue", lwd = 2, lty = 2)
+abline(v = wmdTYOs, col = "red", lwd = 2, lty = 1)
+
+hist(FYOs$WIMD_2014_DECILE,
+     main = "Histogram showing WIMD of 2-6yr olds",
+     xlab = "WIMD",
+     ylab = "No. children", ylim = c(0,4000))
+legend(x = "topright", inset = c(0,-0.1),
+       legend = c("median", "mean"),
+       lty = c(1,2),
+       col = c("red", "blue"),
+       lwd = 2,
+       bty = "n") 
+wmFYOs <- mean(FYOs$WIMD_2014_DECILE)
+wmdFYOs <- median(FYOs$WIMD_2014_DECILE)
+abline(v = wmFYOs, col = "blue", lwd = 2, lty = 2)
+abline(v = wmdFYOs, col = "red", lwd = 2, lty = 1)
+
+p15WIMD <- 
+  rbind(
+    data.frame(WIMD = plot15$WIMD_2014_DECILE, label = "EVENT"),
+    data.frame(WIMD = FtYOs$WIMD_2014_DECILE, label = "PATIENT")
+  )  %>% 
+  rstatix::wilcox_test(WIMD ~ label)
+
+
+#significance between event means and patient means
+p15BMI <- 
+  rbind(
+    data.frame(BMI = plot15$BMI, label = "EVENT"),
+    data.frame(BMI = FtYOs$AVG_BMI_RAW, label = "PATIENT")
+  )  %>% 
+  rstatix::wilcox_test(BMI ~ label)
+
+p10WIMD <- 
+  rbind(
+    data.frame(WIMD = plot10$WIMD_2014_DECILE, label = "EVENT"),
+    data.frame(WIMD = TYOs$WIMD_2014_DECILE, label = "PATIENT")
+  )  %>% 
+  rstatix::wilcox_test(WIMD ~ label)
+
+p10BMI <- 
+  rbind(
+    data.frame(BMI = plot10$BMI, label = "EVENT"),
+    data.frame(BMI = TYOs$AVG_BMI_RAW, label = "PATIENT")
+  )  %>% 
+  rstatix::wilcox_test(BMI ~ label)
+
+p5WIMD <- 
+  rbind(
+    data.frame(WIMD = plot5$WIMD_2014_DECILE, label = "EVENT"),
+    data.frame(WIMD = FYOs$WIMD_2014_DECILE, label = "PATIENT")
+  )  %>% 
+  rstatix::wilcox_test(WIMD ~ label)
+
+p5BMI <- 
+  rbind(
+    data.frame(BMI = plot5$BMI, label = "EVENT"),
+    data.frame(BMI = FYOs$AVG_BMI_RAW, label = "PATIENT")
+  )  %>% 
+  rstatix::wilcox_test(BMI ~ label)

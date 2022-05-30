@@ -1,0 +1,85 @@
+Where I have written ***, this means I have removed text for security sake
+
+#Source the setup code
+source("P:/***/workspace/1415/Scripts/R Scripts/Setup for export.R")
+
+#comparing predictors of diabetes in 15yr olds with and without WIMD
+DFLcv0.75 <- DFL.cv(FtYOs, 0.75)
+DFLcv0.8 <- DFLcv(FtYOs, 0.8)
+DFLcv0.9 <- DFLcv(FtYOs, 0.9)
+
+depcv0.75 <- Depcv(FtYOs, 0.75)
+depcv0.8 <- Depcv(FtYOs, 0.8)
+depcv0.9 <- Depcv(FtYOs, 0.9)
+
+DFLcv0.75TtFt <- DFLcv(TtFt, 0.75)
+DFLcv0.8TtFt <- DFLcv(TtFt, 0.8)
+DFLcv0.9TtFt <- DFLcv(TtFt, 0.9)
+
+constcv0.75 <- constcv(FtYOs, 0.75)
+constcv0.8 <- constcv(FtYOs, 0.8)
+constcv0.9 <- constcv(FtYOs, 0.9)
+
+Fconstcv0.75 <- constcv(FYOs, 0.75)
+Fconstcv0.8 <- constcv(FYOs, 0.8)
+Fconstcv0.9 <- constcv(FYOs, 0.9)
+
+#Rank
+
+DFLcv0.75.rank <- DFLcv.rank(FtYOs, 0.75)
+DFLcv0.8.rank <- DFLcv.rank(FtYOs, 0.8)
+DFLcv0.9.rank <- DFLcv.rank(FtYOs, 0.9)
+
+depcv0.75.rank <- Depcv.rank(FtYOs, 0.75)
+depcv0.8.rank <- Depcv.rank(FtYOs, 0.8)
+depcv0.9.rank <- Depcv.rank(FtYOs, 0.9)
+
+DFLcv0.75FtFt.rank <- DFLcv.rank(FtT, 0.75)
+DFLcv0.8FtFt.rank <- DFLcv.rank(FtFt, 0.8)
+DFLcv0.9FtFt.rank <- DFLcv.rank(FtFt, 0.9)
+
+DFLcv0.75TtFt.rank <- DFLcv.rank(TtFt, 0.75)
+DFLcv0.8TtFt.rank <- DFLcv.rank(TtFt, 0.8)
+DFLcv0.9TtFt.rank <- DFLcv.rank(TtFt, 0.9)
+
+constcv0.75.rank <- constcv.rank(FtYOs, 0.75)
+constcv0.8.rank <- constcv.rank(FtYOs, 0.8)
+constcv0.9.rank <- constcv.rank(FtYOs, 0.9)
+
+Fconstcv0.75.rank <- constcv.rank(FYOs, 0.75)
+Fconstcv0.8.rank <- constcv.rank(FYOs, 0.8)
+Fconstcv0.9.rank <- constcv.rank(FYOs, 0.9)
+
+TDFLcv0.75.rank <- DFLcv.rank(TYOs, 0.75)
+TDFLcv0.8.rank <- DFLcv.rank(TYOs, 0.8)
+TDFLcv0.9.rank <- DFLcv.rank(TYOs, 0.9)
+
+#Results used:
+#5
+FC <- constcv(FYOs, 0.75)
+#10
+TC <- constcv(TYOs, 0.75)
+#15
+FtDFL <- DFLcv(FtYOs, 0.75)
+FtDi <- diabcv(FtYOs, 0.75)
+FtFL <- FLcv(FtYOs, 0.75)
+FtC <- constcv(FtYOs, 0.75)
+FtDe <- Depcv(FtYOs, 0.75)
+
+#G1
+FtTC <- constcv(FtT, 0.75)
+#G2
+FtFtC <- constcv(FtFt, 0.75)
+FtFtDe <- Depcv(FtFt, 0.75)
+Depcv(TYOs, 0.75)
+#G3
+TtFtDFL <- DFLcv(TtFt, 0.75)
+TtFtDi <- diabcv(TtFt, 0.75)
+TtFtFL <- FLcv(TtFt, 0.75)
+TtFtC <- constcv(TtFt, 0.75)
+TtFtDe <- Depcv(TtFt, 0.75)
+
+AAcv(FtYOs, 0.75)
+DFLcv(FtYOs, 0.9)
+Depcv.rank(FtYOs, 0.75)
+FLcv.YOB(TtFt, 0.75)

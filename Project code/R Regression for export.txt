@@ -1,0 +1,577 @@
+Where I have written ***, this means I have removed text for security sake
+
+source("P:/***/workspace/1415/Scripts/R Scripts/Setup for export.R")
+#N.B. These are only used for ROC curves and confusion matrices which I can't use CV for.
+# Therefore I changed some parameters each time
+# (e.g. adding or removing year of birth as a predictor or swapping BMI raw with normalised BMI)
+
+#Predictors:
+#Sex, Average BMI, WIMD Decile
+#5 year olds
+FYOs.75 <- splitData(FYOs, 0.75)
+
+#Adverse outcome
+FYOs.75trainCDA <- weight(FYOs.75$train, FYOs.75$train$ADVERSE_OUTCOME)
+
+
+FALR.75 <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI + WIMD_2014_DECILE,
+               data = FYOs.75trainCDA,
+               family = "binomial")
+
+FALR.75.test <- testModel(FALR.75, FYOs.75$test, FYOs.75$test$ADVERSE_OUTCOME)
+modelROC(FALR.75, FYOs.75$test, FYOs.75$test$ADVERSE_OUTCOME)
+#N.B. this is a bad ROC curve because it incorporates constipation which isn't linked with the predictors
+
+
+#Constipation
+FYOs.75trainCDC <- weight(FYOs.75$train, FYOs.75$train$CONST_YN)
+
+
+FCLR.75 <- glm(CONST_YN ~ GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+               data = FYOs.75trainCDC,
+               family = "binomial")
+
+FCLR.75.test <- testModel(FCLR.75, FYOs.75$test, FYOs.75$test$CONST_YN)
+modelROC(FCLR.75, FYOs.75$test, FYOs.75$test$CONST_YN)
+{
+  FCLnR.75 <- lm(CONST_FREQ ~ GNDR_CD + YOB + AVG_BMI + WIMD_2014_DECILE,
+                 data = FYOs.75$train)
+  
+  FCLnR.75.pd <- predict(FCLnR.75, FYOs.75$test, type = "response")
+  
+  plot(x=FYOs.75$test$CONST_FREQ, y=FCLnR.75.pd)
+  
+  summary(FCLnR.75)
+}
+
+#10 Year olds
+TYOs.75 <- splitData(TYOs, 0.75)
+#Adverse outcomes
+
+TYOs.75trainCDA <- weight(TYOs.75$train, TYOs.75$train$ADVERSE_OUTCOME)
+
+
+TALR.75 <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI +  WIMD_2014_DECILE,
+               data = TYOs.75trainCDA,
+               family = "binomial")
+
+TALR.75.test <- testModel(TALR.75, TYOs.75$test, TYOs.75$test$ADVERSE_OUTCOME)
+modelROC(TALR.75, TYOs.75$test, TYOs.75$test$ADVERSE_OUTCOME)
+
+# Constipation
+
+TYOs.75trainCDC <- weight(TYOs.75$train, TYOs.75$train$CONST_YN)
+
+
+TCLR.75 <- glm(CONST_YN ~ GNDR_CD +YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+               data = TYOs.75trainCDC,
+               family = "binomial")
+
+TCLR.75.test <- testModel(TCLR.75, TYOs.75$test, TYOs.75$test$CONST_YN)
+modelROC(TCLR.75, TYOs.75$test, TYOs.75$test$CONST_YN)
+
+#15 Year olds
+FtYOs.75 <- splitData(FtYOs, 0.75)
+# Adverse outcomes
+
+FtYOs.75trainCDA <- weight(FtYOs.75$train, FtYOs.75$train$ADVERSE_OUTCOME)
+
+
+FtALR.75 <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                data = FtYOs.75trainCDA,
+                family = "binomial")
+
+FtALR.75.test <- testModel(FtALR.75, FtYOs.75$test, FtYOs.75$test$ADVERSE_OUTCOME)
+modelROC(FtALR.75, FtYOs.75$test, FtYOs.75$test$ADVERSE_OUTCOME)
+
+#Diabetes and Fatty liver
+FtYOs.75trainCDDFL <- weight(FtYOs.75$train, FtYOs.75$train$DFL)
+
+
+FtDFLLR.75 <- glm(DFL ~ GNDR_CD + AVG_BMI +  WIMD_2014_DECILE,
+                  data = FtYOs.75trainCDDFL,
+                  family = "binomial")
+
+FtDFLLR.75.test <- testModel(FtDFLLR.75, FtYOs.75$test, FtYOs.75$test$DFL)
+modelROC(FtDFLLR.75, FtYOs.75$test, FtYOs.75$test$DFL)
+
+
+#Diabetes
+FtYOs.75trainCDDi <- weight(FtYOs.75$train, FtYOs.75$train$DIAB_YN)
+
+
+FtDiLR.75 <- glm(DIAB_YN ~ GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                 data = FtYOs.75trainCDDi,
+                 family = "binomial")
+
+FtDiLR.75.test <- testModel(FtDiLR.75, FtYOs.75$test, FtYOs.75$test$DIAB_YN)
+modelROC(FtDiLR.75, FtYOs.75$test, FtYOs.75$test$DIAB_YN)
+
+FtDiLR.75$coefficients
+#Constipation
+FtYOs.75trainCDC <- weight(FtYOs.75$train, FtYOs.75$train$CONST_YN)
+
+
+FtCLR.75 <- glm(CONST_YN ~ GNDR_CD  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                data = FtYOs.75trainCDC,
+                family = "binomial")
+
+FtCLR.75.test <- testModel(FtCLR.75, FtYOs.75$test, FtYOs.75$test$CONST_YN)
+modelROC(FtCLR.75, FtYOs.75$test, FtYOs.75$test$CONST_YN)
+
+FtCLnR.75 <- lm(CONST_FREQ ~ GNDR_CD  + YOB + AVG_BMI + WIMD_2014_DECILE,
+                data = FtYOs.75$train)
+
+FtCLnR.75.pd <- predict(FtCLnR.75, FtYOs.75$test, type = "response")
+
+plot(x=FtYOs.75$test$CONST_FREQ, y=FtCLnR.75.pd)
+
+summary(FtCLnR.75)
+
+# Fatty Liver
+FtYOs.75trainCDFL <- weight(FtYOs.75$train, FtYOs.75$train$FL_YN)
+
+
+FtFLLR.75 <- glm(FL_YN ~ GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                 data = FtYOs.75trainCDFL,
+                 family = "binomial")
+
+FtFLLR.75.test <- testModel(FtFLLR.75, FtYOs.75$test, FtYOs.75$test$FL_YN)
+modelROC(FtFLLR.75, FtYOs.75$test, FtYOs.75$test$FL_YN)
+
+#Depression
+
+FtYOs.75trainCDDe <- weight(FtYOs.75$train, FtYOs.75$train$DEP_YN)
+
+
+FtDeLR.75 <- glm(DEP_YN ~ GNDR_CD +YOB  + AVG_BMI_RAW +  WIMD_2014_DECILE,
+                 data = FtYOs.75trainCDDe,
+                 family = "binomial")
+
+FtDeLR.75.test <- testModel(FtDeLR.75, FtYOs.75$test, FtYOs.75$test$DEP_YN)
+modelROC(FtDeLR.75, FtYOs.75$test, FtYOs.75$test$DEP_YN)
+
+
+FtDeLnR.75 <- lm(DEP_FREQ ~ GNDR_CD + YOB + AVG_BMI + WIMD_2014_DECILE,
+                 data = FtYOs.75$train)
+
+FtDeLnR.75.pd <- predict(FtDeLnR.75, FtYOs.75$test, type = "response")
+
+plot(x=FtYOs.75$test$DEP_FREQ, y=FtDeLR.75.pd)
+
+
+
+#Predictors:
+#Average BMI raw
+
+
+#5 year olds
+
+FALR.75raw <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI_RAW + WIMD_2014_DECILE,
+                  data = FYOs.75trainCDA,
+                  family = "binomial")
+
+FALR.75.testraw <- testModel(FALR.75raw, FYOs.75$test, FYOs.75$test$ADVERSE_OUTCOME)
+modelROC(FALR.75raw, FYOs.75$test, FYOs.75$test$ADVERSE_OUTCOME)
+#N.B. this is a bad ROC curve because it incorporates constipation which isn't linked with the predictors
+
+#Diabetes
+FDiLR.75raw <- glm(DIAB_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = FYOs.75trainCDDi,
+                   family = "binomial")
+
+FDiLR.75.testraw <- testModel(FDiLR.75raw, FYOs.75$test, FYOs.75$test$DIAB_YN)
+modelROC(FDiLR.75raw, FYOs.75$test, FYOs.75$test$DIAB_YN)
+
+#Constipation
+FCLR.75raw <- glm(CONST_YN ~ GNDR_CD + YOB +AVG_BMI_RAW+  WIMD_2014_DECILE,
+                  data = FYOs.75trainCDC,
+                  family = "binomial")
+
+FCLR.75.testraw <- testModel(FCLR.75raw, FYOs.75$test, FYOs.75$test$CONST_YN)
+modelROC(FCLR.75raw, FYOs.75$test, FYOs.75$test$CONST_YN)
+# Fatty Liver
+FFLLR.75raw <- glm(FL_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = FYOs.75trainCDFL,
+                   family = "binomial")
+
+FFLLR.75.testraw <- testModel(FFLLR.75raw, FYOs.75$test, FYOs.75$test$FL_YN)
+modelROC(FFLLR.75raw, FYOs.75$test, FYOs.75$test$FL_YN)
+
+#Depression
+
+FDeLR.75raw <- glm(DEP_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = FYOs.75trainCDDe,
+                   family = "binomial")
+
+FDeLR.75.testraw <- testModel(FDeLR.75raw, FYOs.75$test, FYOs.75$test$DEP_YN)
+modelROC(FDeLR.75raw, FYOs.75$test, FYOs.75$test$DEP_YN)
+
+#10 Year olds
+
+#Adverse outcomes
+TALR.75raw <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                  data = TYOs.75trainCDA,
+                  family = "binomial")
+
+TALR.75.testraw <- testModel(TALR.75raw, TYOs.75$test, TYOs.75$test$ADVERSE_OUTCOME)
+modelROC(TALR.75raw, TYOs.75$test, TYOs.75$test$ADVERSE_OUTCOME)
+
+
+#Diabetes
+TDiLR.75raw <- glm(DIAB_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = TYOs.75trainCDDi,
+                   family = "binomial")
+
+TDiLR.75.testraw <- testModel(TDiLR.75raw, TYOs.75$test, TYOs.75$test$DIAB_YN)
+modelROC(TDiLR.75raw, TYOs.75$test, TYOs.75$test$DIAB_YN)
+# Constipation
+
+TCLR.75raw <- glm(CONST_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                  data = TYOs.75trainCDC,
+                  family = "binomial")
+
+TCLR.75.testraw <- testModel(TCLR.75raw, TYOs.75$test, TYOs.75$test$CONST_YN)
+modelROC(TCLR.75raw, TYOs.75$test, TYOs.75$test$CONST_YN)
+
+# Fatty Liver
+TFLLR.75raw <- glm(FL_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = TYOs.75trainCDFL,
+                   family = "binomial")
+
+TFLLR.75.testraw <- testModel(TFLLR.75raw, TYOs.75$test, TYOs.75$test$FL_YN)
+modelROC(TFLLR.75raw, TYOs.75$test, TYOs.75$test$FL_YN)
+
+#Depression
+TDeLR.75raw <- glm(DEP_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = TYOs.75trainCDDe,
+                   family = "binomial")
+
+TDeLR.75.testraw <- testModel(TDeLR.75raw, TYOs.75$test, TYOs.75$test$DEP_YN)
+modelROC(TDeLR.75raw, TYOs.75$test, TYOs.75$test$DEP_YN)
+
+
+#15 Year olds
+
+# Adverse outcomes
+
+FtALR.75raw <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = FtYOs.75trainCDA,
+                   family = "binomial")
+
+FtALR.75.testraw <- testModel(FtALR.75raw, FtYOs.75$test, FtYOs.75$test$ADVERSE_OUTCOME)
+modelROC(FtALR.75raw, FtYOs.75$test, FtYOs.75$test$ADVERSE_OUTCOME)
+
+
+#Diabetes
+FtDiLR.75raw <- glm(DIAB_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                    data = FtYOs.75trainCDDi,
+                    family = "binomial")
+
+FtDiLR.75.testraw <- testModel(FtDiLR.75raw, FtYOs.75$test, FtYOs.75$test$DIAB_YN)
+modelROC(FtDiLR.75raw, FtYOs.75$test, FtYOs.75$test$DIAB_YN)
+
+
+#Constipation
+FtCLR.75raw <- glm(CONST_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = FtYOs.75trainCDC,
+                   family = "binomial")
+
+FtCLR.75.testraw <- testModel(FtCLR.75raw, FtYOs.75$test, FtYOs.75$test$CONST_YN)
+modelROC(FtCLR.75raw, FtYOs.75$test, FtYOs.75$test$CONST_YN)
+
+
+# Fatty Liver
+FtFLLR.75raw <- glm(FL_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                    data = FtYOs.75trainCDFL,
+                    family = "binomial")
+
+FtFLLR.75.testraw <- testModel(FtFLLR.75raw, FtYOs.75$test, FtYOs.75$test$FL_YN)
+modelROC(FtFLLR.75raw, FtYOs.75$test, FtYOs.75$test$FL_YN)
+
+#Depression
+
+FtDeLR.75raw <- glm(DEP_YN ~ GNDR_CD + YOB +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                    data = FtYOs.75trainCDDe,
+                    family = "binomial")
+
+FtDeLR.75.testraw <- testModel(FtDeLR.75raw, FtYOs.75$test, FtYOs.75$test$DEP_YN)
+modelROC(FtDeLR.75raw, FtYOs.75$test, FtYOs.75$test$DEP_YN)
+
+
+#5 year old BMI on 10 Yr olds
+FtT.75 <- splitData(FtT, 0.75)
+
+#Adverse outcome
+FtT.75trainCDA <- weight(FtT.75$train, FtT.75$train$ADVERSE_OUTCOME)
+
+
+FtTALR.75 <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI + WIMD_2014_DECILE,
+                 data = FtT.75trainCDA,
+                 family = "binomial")
+#N.B. Not enough people
+
+FtTALR.75.test <- testModel(FtTALR.75, FtT.75$test, FtT.75$test$ADVERSE_OUTCOME)
+modelROC(FtTALR.75, FtT.75$test, FtT.75$test$ADVERSE_OUTCOME)
+
+#Diabetes or Fatty Liver
+
+FtT.75trainCDDFL <- weight(FtT.75$train, FtT.75$train$DFL)
+
+
+FtTDFLLR.75 <- glm(DFL ~ GNDR_CD + YOB + AVG_BMI +  WIMD_2014_DECILE,
+                   data = FtT.75trainCDDFL,
+                   family = "binomial")
+
+FtTFLLR.75.test <- testModel(FtTDFLLR.75, FtT.75$test, FtT.75$test$DFL)
+modelROC(FtTDFLLR.75, FtT.75$test, FtT.75$test$DFL)
+
+#Diabetes
+FtT.75trainCDDi <- weight(FtT.75$train, FtT.75$train$DIAB_YN)
+
+
+FtTDiLR.75 <- glm(DIAB_YN ~  GNDR_CD + YOB +AVG_BMI +  WIMD_2014_DECILE,
+                  data = FtT.75trainCDDi,
+                  family = "binomial")
+
+FtTDiLR.75.test <- testModel(FtTDiLR.75, FtT.75$test, FtT.75$test$DIAB_YN)
+modelROC(FtTDiLR.75, FtT.75$test, FtT.75$test$DIAB_YN)
+
+#Constipation
+FtT.75trainCDC <- weight(FtT.75$train, FtT.75$train$CONST_YN)
+
+
+FtTCLR.75 <- glm(CONST_YN ~ GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                 data = FtT.75trainCDC,
+                 family = "binomial")
+
+FtTCLR.75.test <- testModel(FtTCLR.75, FtT.75$test, FtT.75$test$CONST_YN)
+modelROC(FtTCLR.75, FtT.75$test, FtT.75$test$CONST_YN)
+
+FtTCLnR.75 <- lm(CONST_FREQ ~ GNDR_CD + YOB + AVG_BMI + WIMD_2014_DECILE,
+                 data = FtT.75$train)
+
+FtTCLnR.75.pd <- predict(FtTCLnR.75, FtT.75$test, type = "response")
+
+plot(x=FtT.75$test$CONST_FREQ, y=FtTCLnR.75.pd)
+
+summary(FtTCLnR.75)
+
+# Fatty Liver
+FtT.75trainCDFL <- weight(FtT.75$train, FtT.75$train$FL_YN)
+
+
+FtTFLLR.75 <- glm(FL_YN ~ GNDR_CD + YOB +AVG_BMI +  WIMD_2014_DECILE,
+                  data = FtT.75trainCDFL,
+                  family = "binomial")
+
+FtTFLLR.75.test <- testModel(FtTFLLR.75, FtT.75$test, FtT.75$test$FL_YN)
+modelROC(FtTFLLR.75, FtT.75$test, FtT.75$test$FL_YN)
+
+#Depression
+
+FtT.75trainCDDe <- weight(FtT.75$train, FtT.75$train$DEP_YN)
+
+
+FtTDeLR.75 <- glm(DEP_YN ~ GNDR_CD + YOB +AVG_BMI +  WIMD_2014_DECILE,
+                  data = FtT.75trainCDDe,
+                  family = "binomial")
+
+FtTDeLR.75.test <- testModel(FtTDeLR.75, FtT.75$test, FtT.75$test$DEP_YN)
+modelROC(FtTDeLR.75, FtT.75$test, FtT.75$test$DEP_YN)
+
+
+FtTDeLnR.75 <- lm(DEP_FREQ ~ GNDR_CD + YOB + AVG_BMI + WIMD_2014_DECILE,
+                  data = FtT.75$train)
+
+FtTDeLnR.75.pd <- predict(FtTDeLnR.75, FtT.75$test, type = "response")
+
+plot(x=FtT.75$test$DEP_FREQ, y=FtTDeLnR.75.pd)
+
+
+#5 year old BMI on 15 Yr olds
+FtFt.75 <- splitData(FtFt, 0.75)
+
+#Adverse outcome
+FtFt.75trainCDA <- weight(FtFt.75$train, FtFt.75$train$ADVERSE_OUTCOME)
+
+
+FtFtALR.75 <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI + WIMD_2014_DECILE,
+                  data = FtFt.75trainCDA,
+                  family = "binomial")
+
+FtFtALR.75.test <- testModel(FtFtALR.75, FtFt.75$test, FtFt.75$test$ADVERSE_OUTCOME)
+modelROC(FtFtALR.75, FtFt.75$test, FtFt.75$test$ADVERSE_OUTCOME)
+
+#Diabetes or Fatty Liver
+
+FtFt.75trainCDDFL <- weight(FtFt.75$train, FtFt.75$train$DFL)
+
+
+FtFtDFLLR.75 <- glm(DFL ~ GNDR_CD + YOB + AVG_BMI +  WIMD_2014_DECILE,
+                    data = FtFt.75trainCDDFL,
+                    family = "binomial")
+
+FtFtFLLR.75.test <- testModel(FtFtDFLLR.75, FtFt.75$test, FtFt.75$test$DFL)
+modelROC(FtFtDFLLR.75, FtFt.75$test, FtFt.75$test$DFL)
+
+#Diabetes
+FtFt.75trainCDDi <- weight(FtFt.75$train, FtFt.75$train$DIAB_YN)
+
+
+FtFtDiLR.75 <- glm(DIAB_YN ~ GNDR_CD + YOB +AVG_BMI +  WIMD_2014_DECILE,
+                   data = FtFt.75trainCDDi,
+                   family = "binomial")
+
+
+FtFtDiLR.75.test <- testModel(FtFtDiLR.75, FtFt.75$test, FtFt.75$test$DIAB_YN)
+modelROC(FtFtDiLR.75, FtFt.75$test, FtFt.75$test$DIAB_YN)
+
+#Constipation
+FtFt.75trainCDC <- weight(FtFt.75$train, FtFt.75$train$CONST_YN)
+
+
+FtFtCLR.75 <- glm(CONST_YN ~  GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                  data = FtFt.75trainCDC,
+                  family = "binomial")
+
+
+FtFtCLR.75.test <- testModel(FtFtCLR.75, FtFt.75$test, FtFt.75$test$CONST_YN)
+modelROC(FtFtCLR.75, FtFt.75$test, FtFt.75$test$CONST_YN)
+
+FtFtCLnR.75 <- lm(CONST_FREQ ~ GNDR_CD + YOB + AVG_BMI + WIMD_2014_DECILE,
+                  data = FtFt.75$train)
+
+FtFtCLnR.75.pd <- predict(FtFtCLnR.75, FtFt.75$test, type = "response")
+
+plot(x=FtFt.75$test$CONST_FREQ, y=FtFtCLnR.75.pd)
+
+summary(FtFtCLnR.75)
+
+# Fatty Liver
+FtFt.75trainCDFL <- weight(FtFt.75$train, FtFt.75$train$FL_YN)
+
+
+FtFtFLLR.75 <- glm(FL_YN ~ GNDR_CD + YOB +AVG_BMI +  WIMD_2014_DECILE,
+                   data = FtFt.75trainCDFL,
+                   family = "binomial")
+
+FtFtFLLR.75.test <- testModel(FtFtFLLR.75, FtFt.75$test, FtFt.75$test$FL_YN)
+modelROC(FtFtFLLR.75, FtFt.75$test, FtFt.75$test$FL_YN)
+
+#Depression
+
+FtFt.75trainCDDe <- weight(FtFt.75$train, FtFt.75$train$DEP_YN)
+
+
+FtFtDeLR.75 <- glm(DEP_YN ~ GNDR_CD  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = FtFt.75trainCDDe,
+                   family = "binomial")
+
+FtFtDeLR.75.test <- testModel(FtFtDeLR.75, FtFt.75$test, FtFt.75$test$DEP_YN)
+modelROC(FtFtDeLR.75, FtFt.75$test, FtFt.75$test$DEP_YN)
+
+
+FtFtDeLnR.75 <- lm(DEP_FREQ ~ GNDR_CD + YOB + AVG_BMI + WIMD_2014_DECILE,
+                   data = FtFt.75trainCDe)
+
+FtFtDeLnR.75.pd <- predict(FtFtDeLnR.75, FtFt.75$test, type = "response")
+
+plot(x=FtFt.75$test$DEP_FREQ, y=FtFtDeLnR.75.pd)
+
+#10 year old BMI on 15 Yr olds
+TtFt.75 <- splitData(TtFt, 0.75)
+
+#Adverse outcome
+TtFt.75trainCDA <- weight(TtFt.75$train, TtFt.75$train$ADVERSE_OUTCOME)
+
+
+TtFtALR.75 <- glm(ADVERSE_OUTCOME ~ GNDR_CD + YOB +AVG_BMI + WIMD_2014_DECILE,
+                  data = TtFt.75trainCDA,
+                  family = "binomial")
+
+TtFtALR.75.test <- testModel(TtFtALR.75, TtFt.75$test, TtFt.75$test$ADVERSE_OUTCOME)
+modelROC(TtFtALR.75, TtFt.75$test, TtFt.75$test$ADVERSE_OUTCOME)
+
+#Diabetes or Fatty Liver
+
+TtFt.75trainCDDFL <- weight(TtFt.75$train, TtFt.75$train$DFL)
+
+
+TtFtDFLLR.75 <- glm(DFL ~ GNDR_CD +YOB  + AVG_BMI_RAW +  WIMD_2014_DECILE,
+                    data = TtFt.75trainCDDFL,
+                    family = "binomial")
+
+TtFtFLLR.75.test <- testModel(TtFtDFLLR.75, TtFt.75$test, TtFt.75$test$DFL)
+modelROC(TtFtDFLLR.75, TtFt.75$test, TtFt.75$test$DFL)
+
+
+#Diabetes
+TtFt.75trainCDDi <- weight(TtFt.75$train, TtFt.75$train$DIAB_YN)
+
+
+TtFtDiLR.75 <- glm(DIAB_YN ~ GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = TtFt.75trainCDDi,
+                   family = "binomial")
+
+
+TtFtDiLR.75.test <- testModel(TtFtDiLR.75, TtFt.75$test, TtFt.75$test$DIAB_YN)
+modelROC(TtFtDiLR.75, TtFt.75$test, TtFt.75$test$DIAB_YN)
+
+#Constipation
+TtFt.75trainCDC <- weight(TtFt.75$train, TtFt.75$train$CONST_YN)
+
+
+TtFtCLR.75 <- glm(CONST_YN ~  GNDR_CD +YOB  + AVG_BMI_RAW +  WIMD_2014_DECILE,
+                  data = TtFt.75trainCDC,
+                  family = "binomial")
+
+
+TtFtCLR.75.test <- testModel(TtFtCLR.75, TtFt.75$test, TtFt.75$test$CONST_YN)
+modelROC(TtFtCLR.75, TtFt.75$test, TtFt.75$test$CONST_YN)
+
+TtFtCLnR.75 <- lm(CONST_FREQ ~ GNDR_CD + YOB + AVG_BMI + WIMD_2014_DECILE,
+                  data = TtFt.75$train)
+
+TtFtCLnR.75.pd <- predict(TtFtCLnR.75, TtFt.75$test, type = "response")
+
+plot(x=TtFt.75$test$CONST_FREQ, y=TtFtCLnR.75.pd)
+
+summary(TtFtCLnR.75)
+
+# Fatty Liver
+TtFt.75trainCDFL <- weight(TtFt.75$train, TtFt.75$train$FL_YN)
+
+
+TtFtFLLR.75 <- glm(FL_YN ~ GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = TtFt.75trainCDFL,
+                   family = "binomial")
+
+TtFtFLLR.75.test <- testModel(TtFtFLLR.75, TtFt.75$test, TtFt.75$test$FL_YN)
+modelROC(TtFtFLLR.75, TtFt.75$test, TtFt.75$test$FL_YN)
+
+#Depression
+
+TtFt.75trainCDDe <- weight(TtFt.75$train, TtFt.75$train$DEP_YN)
+
+
+TtFtDeLR.75 <- glm(DEP_YN ~ GNDR_CD +YOB  +AVG_BMI_RAW +  WIMD_2014_DECILE,
+                   data = TtFt.75trainCDDe,
+                   family = "binomial")
+
+TtFtDeLR.75.test <- testModel(TtFtDeLR.75, TtFt.75$test, TtFt.75$test$DEP_YN)
+modelROC(TtFtDeLR.75, TtFt.75$test, TtFt.75$test$DEP_YN)
+
+
+TtFtDeLnR.75 <- lm(DEP_FREQ ~ GNDR_CD + AVG_BMI_RAW + WIMD_2014_DECILE,
+                   data = TtFt.75trainCDDe)
+
+TtFtDeLnR.75.pd <- predict(TtFtDeLnR.75, TtFt.75$test, type = "response")
+
+plot(x=TtFt.75$test$DEP_FREQ, y=TtFtDeLnR.75.pd,
+     xlab = "Predicted frequency", ylab = "Observed frequency",
+     main = ("Scattergraph of predicted depression events\nagainst observed events in Group 3"))
+abline(a=0, b=1)
+legend(x = "topright",
+       legend = expression("R"^2*"=0.11"),
+       bty = "n") 
